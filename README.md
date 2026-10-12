@@ -1,97 +1,66 @@
 # AI-Based Network Health Monitoring and Predictive Alerting System
 
-A Python-based network monitoring project that collects system and network performance metrics, stores them in SQLite, calculates a network health score, predicts possible network issues, and presents monitoring results through a Node-RED Dashboard. Telegram notifications can be used to alert administrators about important network events.
+## 1. Introduction
 
-## Table of Contents
+The AI-Based Network Health Monitoring and Predictive Alerting System continuously monitors computer system and network performance. It collects metrics such as CPU usage, RAM usage, disk usage, internet speed, ping, packet loss, jitter, bandwidth usage, and connected devices. The collected data is stored in an SQLite database and analyzed to calculate network health scores and predict potential network issues. Node-RED Dashboard 2.0 provides a graphical interface for monitoring network performance and health.
 
-- [Overview](#overview)
-- [Features](#features)
-- [System Architecture](#system-architecture)
-- [Technologies Used](#technologies-used)
-- [Project Structure](#project-structure)
-- [Prerequisites](#prerequisites)
-- [Installation](#installation)
-- [Configuration](#configuration)
-- [Run the Project](#run-the-project)
-- [Dashboard](#dashboard)
-- [Database](#database)
-- [Troubleshooting](#troubleshooting)
-- [Security Notes](#security-notes)
-- [Future Enhancements](#future-enhancements)
+## 2. Problem Statement
 
-## Overview
+Traditional network monitoring systems primarily identify issues after network performance has degraded. Manual monitoring can delay the detection and resolution of network problems. Therefore, a system is needed to continuously monitor performance metrics, assess network health, predict potential network issues, and provide timely alerts through a centralized dashboard.
 
-Traditional monitoring systems often report problems after performance has already degraded. This project aims to support proactive monitoring by collecting performance metrics continuously and using trend/risk logic to estimate the current and potential condition of a network.
+## 3. Dataset Used
 
-The system monitors CPU, RAM, disk, internet speed, ping, packet loss, bandwidth usage, and connected devices. It stores collected metrics in an SQLite database and displays health information and prediction results through Node-RED Dashboard 2.0.
+The project uses continuously collected system and network performance metrics rather than relying exclusively on a predefined static dataset.
 
-## Features
+The collected data includes:
+- CPU, RAM, and disk utilization.
+- Internet download and upload speeds.
+- Ping, packet loss, and jitter.
+- Network bandwidth usage.
+- Number of connected devices.
+- Network health score and predicted status.
 
-- **Real-time system monitoring:** CPU, RAM, and disk usage.
-- **Network performance monitoring:** Ping, packet loss, jitter, internet download/upload speed, and bandwidth.
-- **Connected-device monitoring:** Detects devices on a configured local network, subject to network permissions and scanning tools.
-- **Network health score:** Calculates a score representing current network condition.
-- **Predictive status:** Uses the project's risk/prediction logic to classify network conditions, including:
-  - Stable Network
-  - Latency Increasing
-  - Congestion Expected
-  - Critical Network Warning
-- **SQLite storage:** Maintains historical monitoring records.
-- **Node-RED dashboard:** Presents metrics, health information, and prediction results.
-- **Telegram notifications:** The intended integration can send alerts, suppress duplicates/cool down repeated alerts, and report recovery events.
-- **Configurable network range:** Network settings can be managed through the project's configuration/dashboard workflow.
+The data is stored in an SQLite database, primarily in the `network_metrics` table. A trained machine-learning model, `network_model.pkl`, is used if available in the configured project setup.
 
-> **Note:** The exact availability of features depends on the code and Node-RED flow included in the repository and on the local configuration. Verify Telegram credentials and the dashboard flow before describing a feature as enabled in a particular deployment.
+## 4. Methodology
 
-## System Architecture
+1. **Metric Collection:** Python scripts collect system and network performance information using monitoring libraries and utilities.
+2. **Data Storage:** Collected metrics are stored in an SQLite database for historical tracking.
+3. **Health Assessment:** The system calculates a network health score using monitored performance metrics.
+4. **Prediction:** The configured prediction logic or trained model estimates network conditions and identifies potential performance risks.
+5. **Device Monitoring:** A separate script can monitor devices connected to the local network.
+6. **Dashboard Integration:** Node-RED queries the SQLite database and processes the results for visualization.
+7. **Alerting:** Network status and potential issues are displayed on the dashboard, with optional Telegram notifications when configured.
 
-```text
-Local Computer / Network
-          |
-          v
-Python Monitoring Scripts
-  - CPU, RAM, disk
-  - Ping, packet loss, jitter
-  - Speed and bandwidth
-  - Connected devices
-          |
-          v
-Health / Risk / Prediction Logic
-          |
-          v
-SQLite Database (network.db)
-          |
-          v
-Node-RED SQLite Queries and Flow
-          |
-          v
-Node-RED Dashboard 2.0
-  - System and network metrics
-  - Network health score
-  - AI/risk prediction
-  - Connected devices
+## 5. Evaluation Strategy
 
-Optional alert path:
-Monitoring / prediction logic -> Telegram Bot -> Notifications
-```
+The system can be evaluated using the following criteria:
 
-## Technologies Used
+- **Metric Accuracy:** Compare reported metrics with operating-system monitoring tools.
+- **Data Collection Reliability:** Verify that new records are continuously inserted into SQLite.
+- **Dashboard Update Frequency:** Check whether dashboard values refresh as new metrics arrive.
+- **Prediction Performance:** Evaluate the model using accuracy, precision, recall, F1-score, and a confusion matrix when labeled test data is available.
+- **Alert Effectiveness:** Verify that warnings are generated for relevant network conditions.
+- **System Reliability:** Check whether monitoring operates continuously without unexpected interruptions.
 
-- **Python 3**
-- **SQLite**
-- **Node-RED**
-- **Node-RED Dashboard 2.0**
-- **psutil** — system and network statistics
-- **speedtest-cli** — internet speed tests
-- **python-nmap / Nmap** — local device scanning, if used by the selected script
-- **joblib** — loading a saved model, if required by the project
-- **scikit-learn** — required if the saved model depends on it
-- Python standard-library modules such as `sqlite3`, `subprocess`, `datetime`, and `time`
-- **Telegram Bot API** — for notification functionality, if configured
+*Numerical evaluation results should be included only after conducting the corresponding tests.*
 
-## Project Structure
+## 6. Dashboard
 
-The following is an example layout. Keep the actual filenames and directories in your repository if they differ.
+The project uses Node-RED Dashboard 2.0 to visualize network performance and health.
+
+Dashboard components include:
+
+- **System Health:** CPU, RAM, and disk utilization.
+- **Network Performance:** Ping, packet loss, jitter, download speed, and upload speed.
+- **Bandwidth Information:** Network traffic and bandwidth usage.
+- **Network Health Card:** Current health score and health status.
+- **AI Prediction:** Predicted network condition, confidence, and risk information when provided by the configured model.
+- **Connected Devices:** Information about devices detected on the monitored network.
+
+The dashboard retrieves data through Node-RED flows and SQLite queries. Live updates require successful database access, valid SQL queries, and repeated execution of the monitoring flow.
+
+## 7. Project Structure
 
 ```text
 AI_NETWORK_MONITOR/
@@ -107,278 +76,69 @@ AI_NETWORK_MONITOR/
 │   └── network.db
 ├── flows/
 │   └── flows.json
-├── requirements.txt
 └── README.md
 ```
 
-Do not commit generated database files, model files, or Node-RED flow exports unless you intend to distribute them. If the project needs a model or flow to run, include the required artifact or document how to create/import it.
+*This is a representative structure. Actual filenames and locations may differ in the repository.*
 
-## Prerequisites
+## 8. How to Run the Dashboard
 
-1. Windows, Linux, or macOS with Python installed.
-2. Node.js and Node-RED installed.
-3. Node-RED Dashboard 2.0 and the required SQLite node installed in Node-RED.
-4. Internet access for speed tests and external ping targets.
-5. Nmap installed and available on `PATH` if device scanning uses it.
-6. The project files, including any required trained model file and Node-RED flow export.
+### Step 1: Install Dependencies
 
-Check the installations:
-
-```powershell
-python --version
-python -m pip --version
-node --version
-npm --version
-node-red --version
-```
-
-## Installation
-
-### 1. Clone the repository
+Install Python, Node.js, and Node-RED. Install the Python packages required by the project:
 
 ```bash
-git clone <YOUR_GITHUB_REPOSITORY_URL>
-cd <YOUR_REPOSITORY_FOLDER>
+python -m pip install psutil speedtest-cli joblib scikit-learn netifaces
 ```
 
-Replace the placeholders with your actual GitHub repository URL and folder name.
+Install any additional packages imported by the project and the required Node-RED Dashboard 2.0 and SQLite nodes.
 
-### 2. Create and activate a virtual environment
+### Step 2: Run the Monitoring Script
 
-**Windows PowerShell:**
-
-```powershell
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-```
-
-If PowerShell blocks activation, you can run the environment's Python directly instead:
-
-```powershell
-.\.venv\Scripts\python.exe -m pip install --upgrade pip
-```
-
-**macOS/Linux:**
-
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-python -m pip install --upgrade pip
-```
-
-### 3. Install Python dependencies
-
-If the repository includes `requirements.txt`:
-
-```bash
-python -m pip install -r requirements.txt
-```
-
-If no requirements file exists yet, install the packages actually imported by the project. A starting list may be:
-
-```bash
-python -m pip install psutil speedtest-cli joblib scikit-learn python-nmap netifaces
-```
-
-Some packages may not be required by every script. The `sqlite3`, `datetime`, `subprocess`, and `time` modules are included with Python and do not need separate installation. If a package fails to install, check the Python version supported by that package; using a stable Python release supported by all project dependencies may be easier than using a very new release.
-
-### 4. Install Node-RED components
-
-Install Node-RED using its official installation instructions: https://nodered.org/docs/getting-started/
-
-In the Node-RED editor, use **Menu → Manage palette → Install** to install the nodes required by your flow, including:
-
-- Node-RED Dashboard 2.0 (`@flowfuse/node-red-dashboard`)
-- The SQLite node package used by the exported flow
-
-The exact SQLite package must match the node type referenced in your flow.
-
-### 5. Import the Node-RED flow
-
-1. Start Node-RED.
-2. Open `http://localhost:1880`.
-3. Choose **Menu → Import**.
-4. Import the project's exported flow JSON, if provided.
-5. Confirm that the SQLite nodes point to the correct local database file.
-6. Click **Deploy**.
-
-Do not replace the flow with a different one unless necessary; first ensure its database configuration and SQL queries match the local database schema.
-
-## Configuration
-
-### Database path
-
-Make sure the Python scripts and Node-RED SQLite nodes use the **same database file**. A relative path such as `data/network.db` depends on the current working directory; an absolute path can be machine-specific.
-
-For portability, configure the database path relative to the project directory or through an environment variable instead of hard-coding another user's Windows path.
-
-### Model path
-
-If the monitoring script loads `model/network_model.pkl`, confirm that the file exists at the configured location. Do not commit a model unless you have permission to share it and it contains no sensitive data.
-
-### Network range
-
-Set the monitored local network range to match your own network. Device discovery may require Nmap and suitable local network permissions. Only scan networks you own or are authorized to monitor.
-
-### Telegram Bot (optional)
-
-If Telegram notifications are enabled, configure the bot token and destination chat ID through environment variables or a local configuration file that is excluded from Git. Never publish bot tokens or private chat identifiers.
-
-## Run the Project
-
-Open a terminal in the repository root.
-
-### 1. Start the monitoring script
-
-For the script layout shown above:
+Open a terminal in the project root directory and run:
 
 ```powershell
 python scripts\monitor.py
 ```
 
-If `monitor.py` is located in the root directory instead, run:
+Keep the script running so that new metrics can be collected and stored.
 
-```powershell
-python monitor.py
-```
-
-Leave the monitoring process running so it can continue collecting data. If device monitoring is a separate process in your version, open a second terminal and run:
+If device monitoring is implemented as a separate process, open another terminal and run:
 
 ```powershell
 python scripts\device_monitor.py
 ```
 
-Only run scripts that exist in your checked-out project and are intended to run independently.
+### Step 3: Start Node-RED
 
-### 2. Start Node-RED
-
-In a separate terminal:
+Open another terminal and run:
 
 ```powershell
 node-red
 ```
 
-If PowerShell reports that `node-red.ps1` cannot run because script execution is disabled, you can either run the available command shim:
+If PowerShell blocks the command, try:
 
 ```powershell
 node-red.cmd
 ```
 
-or, if necessary, allow locally installed scripts for the current user:
+### Step 4: Configure and Deploy the Flow
 
-```powershell
-Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
-```
+1. Open `http://localhost:1880` in your browser.
+2. Import the project's Node-RED flow JSON if it is not already loaded.
+3. Ensure the SQLite nodes reference the same database file used by the Python monitoring script.
+4. Verify that the SQL queries use columns present in the selected database.
+5. Click **Deploy**.
 
-Only change the execution policy if you understand and are permitted to change this setting on your computer.
+### Step 5: Open the Dashboard
 
-### 3. Open the dashboard
-
-Open the dashboard URL configured in your Node-RED flow. For many Dashboard 2.0 installations, the path is configured by the flow; use the URL shown by the dashboard nodes. Example:
+Open the dashboard URL configured in the Node-RED flow. For example:
 
 ```text
-http://localhost:1880/dashboard
+http://localhost:1880/dashboardnetwork
 ```
 
-Your flow may use a different path, such as `/dashboardnetwork`. Use the path configured in your own flow.
+Use the actual dashboard path configured in your project if it differs.
 
-## Dashboard
-
-The dashboard is intended to show:
-
-- CPU, RAM, and disk usage
-- Ping, packet loss, and jitter
-- Download/upload speed and bandwidth
-- Connected devices
-- Network health score and health label
-- Predicted network status and related risk information
-
-The dashboard can only update when new metrics are written to the database **and** Node-RED successfully queries the same database and passes the results to the widgets.
-
-## Database
-
-The primary monitoring table is named `network_metrics`. The table schema can vary by project version. Check the schema before running SQL queries:
-
-```powershell
-python -c "import sqlite3; c=sqlite3.connect('data/network.db'); print(c.execute('PRAGMA table_info(network_metrics)').fetchall()); c.close()"
-```
-
-Check whether records are being inserted:
-
-```powershell
-python -c "import sqlite3; c=sqlite3.connect('data/network.db'); print('Rows:', c.execute('SELECT COUNT(*) FROM network_metrics').fetchone()[0]); print('Latest ID:', c.execute('SELECT MAX(id) FROM network_metrics').fetchone()[0]); c.close()"
-```
-
-Run these commands from the project root if your database is at `data/network.db`. If the database is elsewhere, replace the path with the actual database path.
-
-## Troubleshooting
-
-### Dashboard values are blank or stale
-
-1. Confirm that the Python monitoring script is still running.
-2. Check whether the row count or latest record ID in `network_metrics` increases over time.
-3. Verify that Node-RED and Python use the exact same database file.
-4. Check the Node-RED Debug sidebar for SQLite errors.
-5. Verify that the SQL query uses columns that actually exist in the local table.
-6. Deploy the flow and refresh the dashboard after correcting any configuration errors.
-
-### `SQLITE_ERROR: no such column`
-
-This means a SQL query refers to a column that does not exist in the database selected by that SQLite node.
-
-1. Run the `PRAGMA table_info(network_metrics)` command above against the exact database file selected in Node-RED.
-2. Compare the returned column names with every column in the node's SQL query.
-3. Remove or correct references to missing columns, or intentionally migrate the database schema if that column is genuinely required.
-4. Repeat the schema check for the exact database path shown in the Node-RED SQLite node.
-
-Do not assume that two database files with the same name have the same schema. A project folder copied from another computer may contain multiple `network.db` files with different columns.
-
-### Python script runs but the dashboard does not update
-
-- Confirm the database row count/latest ID changes while the monitoring script runs.
-- If the database updates but Node-RED Debug shows SQLite errors, resolve the query/schema mismatch first.
-- Confirm that the SQLite polling/query node is triggered repeatedly by the flow.
-- Confirm that the query result is connected to the correct dashboard widget and that the widget expects the received data format.
-
-### `node-red.ps1 cannot be loaded`
-
-Try `node-red.cmd` in PowerShell. If that command is unavailable, review the Node-RED installation and PowerShell execution policy.
-
-### Missing Python module
-
-Install the missing package in the same Python environment used to run the project:
-
-```powershell
-python -m pip install <package-name>
-```
-
-### Saved model file not found
-
-Verify the configured model path and ensure `network_model.pkl` exists. Update machine-specific paths to a portable project-relative path.
-
-## Security Notes
-
-- Do not commit `.env` files, Telegram bot tokens, passwords, private IP inventories, or other secrets.
-- Use `.gitignore` for virtual environments, caches, logs, local databases, and private configuration files.
-- Scan only networks you own or have explicit permission to monitor.
-- Avoid exposing the Node-RED editor or dashboard publicly without appropriate authentication and network controls.
-- Check the license and redistribution permissions for datasets, models, and third-party components before publishing them.
-
-## Future Enhancements
-
-- Improve prediction accuracy using historical network data and advanced machine-learning methods.
-- Add cloud database storage and centralized monitoring.
-- Add advanced anomaly detection.
-- Introduce Quality of Service (QoS) analysis.
-- Classify network traffic by application or protocol.
-- Add automated recovery actions for selected network failures.
-- Extend security monitoring to flag suspicious connections and abnormal traffic.
-
-## Acknowledgements
-
-This project was developed as an AI-based network health monitoring and predictive alerting system. The internship report identifies the National Institute of Technology, Warangal, and the NIT Warangal–SIEMENS Centre of Excellence for Digital Manufacturing and Automation as the internship context.
-
----
-
-**Maintainer:** Add your name or GitHub username here  
-**Project:** AI-Based Network Health Monitoring and Predictive Alerting System
+Keep the Python monitoring script and Node-RED running. The dashboard updates when new metrics are written to the database and the Node-RED flow successfully retrieves and forwards them to the dashboard widgets.
